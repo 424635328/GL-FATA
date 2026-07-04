@@ -165,7 +165,7 @@ $$Gbest' = Gbest + \alpha \cdot L(\beta) \cdot (ub - lb)$$
 
 ### 箱线图：适应度分布
 
-![CEC2022 箱线图](cec2022/RunCEC2022/Run0529/boxplots.jpg)
+![CEC2022 箱线图](./cec2022/RunCEC2022/Run0529/boxplots.jpg)
 
 > 生成代码：`cec2022/Analyze_CEC2022.m`（第 69–127 行）。纵轴为对数坐标（代码第 100 行），避免算法性能悬殊时箱体被压扁。每种颜色对应一个算法，12 个子图对应 CEC2022 的 12 个测试函数。
 
@@ -184,7 +184,7 @@ $$Gbest' = Gbest + \alpha \cdot L(\beta) \cdot (ub - lb)$$
 
 ### Friedman 检验：算法排名
 
-![Friedman 检验](cec2022/RunCEC2022/Run0529/Friedman.jpg)
+![Friedman 检验](./cec2022/RunCEC2022/Run0529/Friedman.jpg)
 
 > 生成代码：`cec2022/RunCEC2022/Run0529/Analyze_0529.m`（第 192–198 行）。排名基于 12 个函数上的平均表现，数值越低越好。
 
@@ -192,13 +192,13 @@ $$Gbest' = Gbest + \alpha \cdot L(\beta) \cdot (ub - lb)$$
 
 ### 收敛曲线
 
-![收敛曲线对比](cec2022/RunCEC2022/Run0529/xxt1.jpg)
+![收敛曲线对比](./cec2022/RunCEC2022/Run0529/xxt1.jpg)
 
 GL-FATA 的 PWLCM 混沌初始化使算法从第一代起就具备更好的初始位置（见 `cec2022/View.m` 对比可视化），引导因子折射加速了中期收敛，Lévy 飞行在后期帮助跳出局部最优。
 
 ### 计算耗时
 
-![运行时间对比](cec2022/RunCEC2022/Run0529/runtime.jpg)
+![运行时间对比](./cec2022/RunCEC2022/Run0529/runtime.jpg)
 
 > 生成代码：`cec2022/RunCEC2022/Run0529/Analyze_0529.m`（第 257–270 行）。
 
