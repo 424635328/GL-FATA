@@ -184,7 +184,7 @@ $$Gbest' = Gbest + \alpha \cdot L(\beta) \cdot (ub - lb)$$
 
 ### Friedman 检验：算法排名
 
-![Friedman 检验](https://raw.githubusercontent.com/424635328/GL-FATA/main/cec2022/RunCEC2022/Run0529/Friedman.jpg)
+![Friedman 检验](./cec2022/RunCEC2022/Run0529/Friedman.jpg)
 
 > 生成代码：`cec2022/RunCEC2022/Run0529/Analyze_0529.m`（第 192–198 行）。排名基于 12 个函数上的平均表现，数值越低越好。
 
