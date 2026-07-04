@@ -42,9 +42,9 @@ FATA 包含两个主要阶段：
 | 公式 | 表达式 | 作用 |
 |------|--------|------|
 | Eq.(4) | $IP = (I_N - I_{worst}) / (I_{best} - I_{worst} + \epsilon)$ | 种群质量因子 |
-| Eq.(8) | $X_i^j = Gbest^j + X_i^j \cdot Para1^j$ | 第一折射阶段 |
-| Eq.(11) | $X_i^j = X_{num}^j + Para2^j \cdot X_i^j$ | 邻域随机折射 |
-| Eq.(14) | $X_i^j = 0.5(\alpha+1)(lb^j+ub^j) - \alpha \cdot X_i^j$ | 全内反射 |
+| Eq.(8) | $X\_i^j = Gbest^j + X\_i^j \cdot Para1^j$ | 第一折射阶段 |
+| Eq.(11) | $X\_i^j = X_{num}^j + Para2^j \cdot X\_i^j$ | 邻域随机折射 |
+| Eq.(14) | $X\_i^j = 0.5(\alpha+1)(lb^j+ub^j) - \alpha \cdot X\_i^j$ | 全内反射 |
 
 > **参考文献：** Qi, A., Zhao, D., Heidari, A. A., Liu, L., Chen, Y., & Chen, H. (2024). FATA: An Efficient Optimization Method Based on Geophysics. *Neurocomputing*, 128289. DOI: [10.1016/j.neucom.2024.128289](https://doi.org/10.1016/j.neucom.2024.128289)
 
@@ -65,10 +65,10 @@ PWLCM 映射定义为：
 $$
 x_{t+1} =
 \begin{cases}
-x_t / P, & 0 \le x_t < P \\[2pt]
-(x_t - P) / (0.5 - P), & P \le x_t < 0.5 \\[2pt]
-(1 - P - x_t) / (0.5 - P), & 0.5 \le x_t < (1 - P) \\[2pt]
-(1 - x_t) / P, & (1 - P) \le x_t \le 1
+x_t / P, & 0 \leq x_t < P \\
+(x_t - P) / (0.5 - P), & P \leq x_t < 0.5 \\
+(1 - P - x_t) / (0.5 - P), & 0.5 \leq x_t < (1 - P) \\
+(1 - x_t) / P, & (1 - P) \leq x_t \leq 1
 \end{cases}
 $$
 
@@ -82,8 +82,8 @@ $$
 
 | 个体类型 | 更新规则 | 效果 |
 |---------|----------|------|
-| 最优个体 ($i = BestIndi$) | $X_i^j = Gbest^j + X_i^j \cdot Para1^j$ | 保留原始 FATA 行为，在全局最优附近探索 |
-| 普通个体 | $X_i^j = Gbest^j + (Gbest^j - X_i^j) \cdot Para1^j \times 1.832$ | **向全局最优引导**，$(Gbest^j - X_i^j)$ 项产生梯度般的吸引力，加速收敛 |
+| 最优个体 ($i = BestIndi$) | $X\_i^j = Gbest^j + X\_i^j \cdot Para1^j$ | 保留原始 FATA 行为，在全局最优附近探索 |
+| 普通个体 | $X\_i^j = Gbest^j + (Gbest^j - X\_i^j) \cdot Para1^j \times 1.832$ | **向全局最优引导**，$(Gbest^j - X\_i^j)$ 项产生梯度般的吸引力，加速收敛 |
 
 ### 3️⃣ 全局最优的 Lévy 飞行扰动
 
@@ -232,17 +232,6 @@ GL_FATA 可在标准 CEC 基准函数上进行测试：
   year={2024},
   publisher={Elsevier},
   doi={10.1016/j.neucom.2024.128289}
-}
-```
-
-### GL_FATA 改进版本
-
-```bibtex
-@misc{glfata2024,
-  title={GL\_FATA: 融合混沌映射初始化、引导因子折射与L{\'e}vy飞行的改进FATA优化算法},
-  author={GL-FATA Contributors},
-  year={2024},
-  howpublished={\url{https://github.com/GL-FATA/GL-FATA}}
 }
 ```
 
