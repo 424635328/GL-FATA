@@ -1,0 +1,48 @@
+# =========== MATLAB ===========
+*.m~                 # Auto-save files
+*.asv                # Auto-save files (older MATLAB)
+*.m.bak              # Backup files
+*.mat                # MAT-file data
+*.fig                # Figure files
+*.mlappinstall       # App installer
+*.mlx                # Live scripts
+*.p                  # P-code files
+*.slx                # Simulink models
+*.mdl                # Simulink models (legacy)
+slprj/               # Simulink project cache
+sldd/                # Simulink data dictionary
+*.sldd               # Simulink data dictionary (binary)
+*.mexw64             # MEX files (Windows 64-bit)
+*.mexw32             # MEX files (Windows 32-bit)
+*.mexa64             # MEX files (Linux 64-bit)
+*.mexmaci64          # MEX files (macOS 64-bit)
+
+# =========== MATLAB Code Analyzer / Coverage ===========
+codegen/             # MATLAB Coder generated code
+html/                # MATLAB publish output
+*.report/            # MATLAB report generator output
+coverage/            # Coverage report
+.cov/                # Coverage cache
+
+# =========== OS ===========
+.DS_Store            # macOS
+Thumbs.db            # Windows
+*.swp                # Vi/Vim swap files
+*~                   # Vi/Vim backup files
+
+# =========== Presentation / Build Artifacts ===========
+*.pptx               # Generated PowerPoint files
+node_modules/        # Node.js dependencies (if using pptx generation scripts)
+package-lock.json    # npm lockfile
+package.json         # npm package (unless project dependency)
+
+# =========== IDE ===========
+.vscode/             # VS Code settings
+.idea/               # JetBrains IDE settings
+*.sublime-*          # Sublime Text
+*.orig               # Merge conflict backups
+
+# =========== Results ===========
+results/
+output/
+*.log
