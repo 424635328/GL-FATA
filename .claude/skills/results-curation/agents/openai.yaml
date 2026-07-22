@@ -1,0 +1,4 @@
+interface:
+  display_name: "Results Curation"
+  short_description: "Validate and present GL-FATA experiment results"
+  default_prompt: "Use $results-curation to update verified result tables or README figures."

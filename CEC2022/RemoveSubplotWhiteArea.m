@@ -8,7 +8,6 @@
 % current_col :当前行数
 %
 % 注意:使用如下语句,print保存图片的时候使其按照设置来保存,否则修改无效
-% set(gcf, 'PaperPositionMode', 'auto');
 
 
 function [] = RemoveSubplotWhiteArea(gca, sub_row, sub_col, current_row, current_col)

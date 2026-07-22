@@ -5,7 +5,6 @@
 %
 % This is a simple demo version only implemented the basic         
 % idea of the DBO for solving the unconstrained problem.    
-% The details about DBO are illustratred in the following paper.    
 % (To cite this article):                                                
 %  Jiankai Xue & Bo Shen (2022) Dung beetle optimizer: a new meta-heuristic
 % algorithm for global optimization. The Journal of Supercomputing, DOI:

@@ -111,7 +111,7 @@ while FEs < MaxFEs
             LF = Levy(dim);
             alpha = 0.01; % 步长缩放因子
             
-            % --- 改进策略 3: (严格贴合论文公式 2.20，使用当前位置与下界的信息) ---
+            % --- 改进策略 3: 使用当前位置与下界信息的 Levy 扰动 ---
             gBest_new = gBest + alpha .* LF .* (gBest - lb);
             
             % 越界修正

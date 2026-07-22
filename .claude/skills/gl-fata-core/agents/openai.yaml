@@ -1,0 +1,4 @@
+interface:
+  display_name: "GL-FATA Core"
+  short_description: "Maintain GL-FATA algorithm invariants safely"
+  default_prompt: "Use $gl-fata-core to review or modify the GL-FATA implementation."

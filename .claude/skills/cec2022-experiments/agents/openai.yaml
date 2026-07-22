@@ -1,0 +1,4 @@
+interface:
+  display_name: "CEC2022 Experiments"
+  short_description: "Run and maintain CEC2022 experiment workflows"
+  default_prompt: "Use $cec2022-experiments to prepare or review a CEC2022 experiment."

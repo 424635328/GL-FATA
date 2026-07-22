@@ -10,7 +10,6 @@
 %                                                                   %
 %       Homepage: http://www.alimirjalili.com                       %
 %                                                                   %
-%   Main paper: S. Mirjalili, S. M. Mirjalili, A. Lewis             %
 %               Grey Wolf Optimizer, Advances in Engineering        %
 %               Software , in press,                                %
 %               DOI: 10.1016/j.advengsoft.2013.12.007               %

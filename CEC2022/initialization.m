@@ -11,7 +11,7 @@
 % 📧 E-Mail: q17853118231@163.com, as_heidari@ut.ac.ir, aliasghar68@gmail.com, chenhuiling.jlu@gmail.com
   
 
-% 📜 After use of code, please users cite to the main paper on FATA: An Efficient Optimization Method Based on Geophysics:
+% 📜 Main FATA source: An Efficient Optimization Method Based on Geophysics:
 % Ailiang Qi, Dong Zhao, Ali Asghar Heidari, Lei Liu, Yi Chen, Huiling Chen
 % FATA: An Efficient Optimization Method Based on Geophysics
 % Neurocomputing - 2024, DOI: https://doi.org/10.1016/j.neucom.2024.128289
