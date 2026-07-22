@@ -1,0 +1,3 @@
+[submodule "third_party/FATA"]
+	path = third_party/FATA
+	url = https://github.com/aliasgharheidaricom/FATA-An-Efficient-Optimization-Method-Based-on-Geophysics.git

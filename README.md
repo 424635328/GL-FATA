@@ -1,298 +1,184 @@
-# GL_FATA — 改进型 FATA 优化算法
+# GL-FATA: Improved Fata Morgana Algorithm for CEC2022 Optimization
 
-[![MATLAB](https://img.shields.io/badge/MATLAB-R2016b%2B-blue)](https://www.mathworks.com/)
-[![Paper](https://img.shields.io/badge/Paper-Neurocomputing%202024-green)](https://doi.org/10.1016/j.neucom.2024.128289)
+[![MATLAB](https://img.shields.io/badge/MATLAB-R2016b%2B-0076A8?logo=mathworks&logoColor=white)](https://www.mathworks.com/products/matlab.html)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Upstream FATA](https://img.shields.io/badge/upstream-FATA-181717?logo=github)](https://github.com/aliasgharheidaricom/FATA-An-Efficient-Optimization-Method-Based-on-Geophysics)
 
-**GL_FATA** 是对 **FATA（Fata Morgana Algorithm，海市蜃楼算法）** 元启发式算法的改进变体，在 *Neurocomputing*（2024）发表的原始 FATA 基础上引入三项关键改进，以加速收敛并提升解质量。
+GL-FATA 是一个用于连续数值优化的 MATLAB 元启发式优化算法毕业设计项目（metaheuristic optimization / swarm intelligence）。在原始 **FATA（Fata Morgana Algorithm）** 的海市蜃楼滤波与光传播机制上，项目实现了 PWLCM 混沌初始化、引导因子折射和 Lévy 飞行扰动，并提供 IEEE CEC2022 基准测试、对比实验、消融实验与结果分析代码。
 
----
+**Keywords:** Fata Morgana Algorithm, FATA, GL-FATA, metaheuristic optimization, swarm intelligence, MATLAB, CEC2022, continuous optimization, Lévy flight, chaotic initialization.
 
-## 📋 目录
+本仓库将论文作者维护的原始 FATA 作为 Git submodule 固定在 `third_party/FATA`。这样既可以在本地对照完整上游实现，又能明确区分本项目的改进代码与基线来源。
 
-- [快速开始](#-快速开始)
-- [算法改进](#-算法改进)
-- [实验结果](#-实验结果)
-- [项目结构](#-项目结构)
-- [引用](#-引用)
-- [许可证](#-许可证)
+## 目录
 
----
+- [快速开始](#快速开始)
+- [算法与代码对应](#算法与代码对应)
+- [CEC2022 实验复现](#cec2022-实验复现)
+- [项目结构](#项目结构)
+- [结果与可复现性说明](#结果与可复现性说明)
+- [引用与许可证](#引用与许可证)
 
-## 🚀 快速开始
+## 快速开始
 
-### 运行 GL_FATA
+### 1. 克隆并初始化上游基线
 
-```matlab
-% 定义目标函数（以 Sphere 为例）
-fobj = @(x) sum(x.^2);
+首次克隆请使用：
 
-% 问题设置
-lb = -100;       % 下界
-ub = 100;        % 上界
-dim = 30;        % 维度
-N = 30;          % 种群规模
-MaxFEs = 15000;  % 最大函数评估次数
-
-% 运行 GL_FATA
-[bestPos, gBestScore, cg_curve] = GL_FATA(fobj, lb, ub, dim, N, MaxFEs);
-
-% 绘制收敛曲线
-semilogy(cg_curve, 'LineWidth', 1.5);
-xlabel('迭代次数'); ylabel('最优适应度');
-title('GL_FATA 收敛曲线'); grid on;
+```bash
+git clone --recurse-submodules https://github.com/424635328/GL-FATA.git
+cd GL-FATA
 ```
 
-### 与原始 FATA 对比
+已有工作副本则执行：
+
+```bash
+git submodule update --init --recursive
+```
+
+`third_party/FATA` 是固定提交的官方基线，而不是本项目修改后的实现。查看其固定版本：
+
+```bash
+git submodule status
+```
+
+### 2. 运行基础验证
+
+在 MATLAB 中从仓库根目录运行：
 
 ```matlab
-[~, score_FATA, curve_FATA] = FATA(fobj, lb, ub, dim, N, MaxFEs);
-[~, score_GL,   curve_GL]   = GL_FATA(fobj, lb, ub, dim, N, MaxFEs);
-
-semilogy(1:length(curve_FATA), curve_FATA, 'b-', ...
-         1:length(curve_GL),   curve_GL,   'r--', 'LineWidth', 1.5);
-legend('FATA', 'GL\_FATA'); grid on;
+run(fullfile('tests', 'smoke_test.m'))
 ```
+
+该测试在标量与逐维边界下分别运行 GL-FATA 与 FATA，并检查输出是否有限、收敛曲线是否生成、解是否满足边界。它不需要额外工具箱，也不运行耗时的 CEC2022 完整实验。
+
+### 3. 最小调用示例
+
+```matlab
+addpath(pwd);
+rng(20260722, 'twister');
+
+fobj = @(x) sum(x .^ 2);
+lb = -100;
+ub = 100;
+dim = 30;
+populationSize = 30;
+maxFEs = 15000;
+
+[bestPos, bestScore, curve] = GL_FATA( ...
+    fobj, lb, ub, dim, populationSize, maxFEs);
+
+semilogy(curve, 'LineWidth', 1.5);
+xlabel('Iteration');
+ylabel('Best fitness');
+title('GL-FATA convergence on Sphere');
+grid on;
+```
+
+根目录的 `FATA.m` 是可直接运行的基线副本；`initialization.m` 补齐了它的上游初始化依赖。若要浏览或运行论文作者的完整原始工程，请进入 `third_party/FATA`。
+
+## 算法与代码对应
+
+| 组件 | GL-FATA 实现 | 目的 |
+| --- | --- | --- |
+| PWLCM 初始化 | `GL_FATA.m` 的 `initialization_PWLCM` | 用独立初始种子和预热迭代生成初始种群，降低维度相关性。 |
+| 引导因子折射 | 主循环的位置更新阶段 | 当前代最优个体局部细化，其他个体以 `lambda = 2.0` 的差分引导向全局最优靠近。 |
+| Lévy 飞行 | 主循环的逃逸策略 | 以 0.2 的概率对全局最优执行有界扰动，并以贪婪策略接受改进。 |
+| 原始 FATA | `FATA.m` 与 `third_party/FATA/` | 作为基线与代码溯源；上游仓库为权威完整版本。 |
+
+根目录的 `GL_FATA.m` 与 `CEC2022/GL_FATA.m` 保持为同一实现：前者用于独立调用，后者让 CEC2022 目录可单独运行。后续修改算法时请同步这两个文件，并重新执行冒烟测试和完整实验。
+
+## CEC2022 实验复现
 
 ### 环境要求
 
-- **MATLAB** R2016b 或更高版本（使用了隐式扩展和 `isscalar`）
-- 无需额外工具箱，仅依赖 MATLAB 核心函数
+- MATLAB R2016b 或更高版本；基础算法和冒烟测试仅依赖 MATLAB 核心功能。
+- 完整 CEC2022 统计使用 `ranksum` 与 `tiedrank`，需要 Statistics and Machine Learning Toolbox。
+- 仓库提供 Windows x64 的 `CEC2022/cec22_func.mexw64`。macOS 或 Linux 用户需在 `CEC2022` 目录使用 MATLAB 支持的 C++ 编译器重新编译 `cec22_func.cpp`。
+- `CEC2022/runsCEC2022_Main_Parallel.m` 额外需要 Parallel Computing Toolbox；当前推荐入口 `RUNCEC2022_0529.m` 不要求并行池。
 
----
+### 推荐入口
 
-## 🔧 算法改进
+在 MATLAB 中执行：
 
-### 背景：FATA 算法
-
-**FATA（Fata Morgana / 海市蜃楼算法）** 是一种基于种群的随机优化方法，灵感来源于**海市蜃光滤波原理**。它模拟光在密度变化的空气层中传播的行为：
-
-| 阶段 | 机制 | 类比 |
-|------|------|------|
-| **光折射** | 通过个体质量因子 $p$ 和参数 $Para1$ 更新位置 | 光穿过不同折射率介质时弯曲 |
-| **全内反射** | 利用邻域信息和参数 $Para2$ 更新位置 | 光在介质边界被完全反射回原介质 |
-
-**种群质量因子** $IP$ 控制搜索阶段切换：
-- $rand > IP$ → 全局随机重新初始化（探索）
-- $rand \leq IP$ → 折射 / 反射搜索（开发）
-
-### GL_FATA 的三处改进
-
-| # | 改进 | 位置 | 机制 | 效果 |
-|:-:|------|------|------|------|
-| 1️⃣ | **PWLCM 混沌初始化** | `GL_FATA.m` 第 129 行 | 分段线性混沌映射生成均匀初始种群 | 提高初始多样性，降低早熟收敛风险 |
-| 2️⃣ | **引导因子折射** | `GL_FATA.m` 第 72–77 行 | 最优个体保留原更新，普通个体增加梯度吸引项 $(Gbest^j - X\_i^j)$ | 加速收敛，区分探索与开发 |
-| 3️⃣ | **Lévy 飞行扰动** | `GL_FATA.m` 第 86–110 行 | 以概率 $P_{Levy}=0.2$ 对全局最优施加长跳跃 | 帮助跳出局部最优 |
-
-#### 1️⃣ PWLCM 混沌映射初始化
-
-用 **PWLCM（分段线性混沌映射）** 替代均匀随机初始化：
-
-$$
-x_{t+1} =
-\begin{cases}
-x_t / P, & 0 \leq x_t < P \\
-(x_t - P) / (0.5 - P), & P \leq x_t < 0.5 \\
-(1 - P - x_t) / (0.5 - P), & 0.5 \leq x_t < (1 - P) \\
-(1 - x_t) / P, & (1 - P) \leq x_t \leq 1
-\end{cases}
-$$
-
-其中控制参数 $P = 0.4$。与标准随机初始化相比，PWLCM 生成的初始种群分布更均匀，方差更接近理论最优值 $1/12 \approx 0.0833$（代码验证：`cec2022/View.m`）。
-
-#### 2️⃣ 引导因子折射策略
-
-在折射阶段区分两类个体：
-
-| 个体类型 | 更新公式 | 效果 |
-|---------|----------|------|
-| 最优个体 ($i = BestIndi$) | $X\_i^j = Gbest^j + X\_i^j \cdot Para1^j$ | 保留原行为，在全局最优附近精细探索 |
-| 普通个体 | $X\_i^j = Gbest^j + (Gbest^j - X\_i^j) \cdot Para1^j \times 1.832$ | $(Gbest^j - X\_i^j)$ 梯度吸引项加速收敛 |
-
-#### 3️⃣ 全局最优的 Lévy 飞行扰动
-
-以概率 $P_{Levy} = 0.2$ 对全局最优解施加 Lévy 飞行：
-
-$$Gbest' = Gbest + \alpha \cdot L(\beta) \cdot (ub - lb)$$
-
-其中 $\alpha = 0.01$（步长缩放因子），$\beta = 1.5$。新候选解被裁剪到 $[lb, ub]$ 范围内并贪婪接受。
-
-### 算法流程
-
-```
-┌──────────────────────────────────────┐
-│ PWLCM 混沌映射初始化 (P = 0.4)       │  ← 改进 #1
-└───────────┬──────────────────────────┘
-            ↓
-┌──────────────────────────────────────┐
-│ 主循环 (while FEs < MaxFEs)          │
-│   ├── 边界约束处理                    │
-│   ├── 适应度评估                      │
-│   ├── 种群质量因子 (IP) 计算          │
-│   └── 位置更新：                      │
-│        ├── rand > IP → 全局重新初始化 │
-│        └── rand ≤ IP →               │
-│             ├── rand < p →            │
-│             │   光折射 + 引导因子     │  ← 改进 #2
-│             └── else →                │
-│                 全内反射               │
-│                                      │
-│   └── Lévy 飞行扰动 (20% 概率)      │  ← 改进 #3
-└──────────────────────────────────────┘
-            ↓
-┌──────────────────────────────────────┐
-│ 返回: bestPos, gBestScore, cg_curve  │
-└──────────────────────────────────────┘
+```matlab
+cd('CEC2022');
+RUNCEC2022_0529
+Analyze_0529
 ```
 
----
+`RUNCEC2022_0529.m` 当前配置为 12 个 CEC2022 函数、20 维、30 次独立运行、种群规模 30、每次最多 300,000 次函数评估，并比较 GL-FATA、MFATA-Levy、IMFATA、ASFSSA、PSO、FATA、GWO 与 SSA。完整运行计算量很大；建议先调小脚本开头的 `run_times` 和 `MaxFEs` 验证环境，再恢复正式配置。
 
-## 📊 实验结果
-
-### 实验配置
-
-| 参数 | 值 |
-|------|-----|
-| 测试集 | CEC2022（F1–F12：单峰、多峰、混合、组合函数） |
-| 维度 | $D = 20$ |
-| 种群规模 | $N = 30$ |
-| 最大函数评估次数 | $MaxFEs = 300{,}000$ |
-| 独立运行 | 30 次 / 算法 |
-| 对比算法 | GL-FATA, FATA, ASFSSA, PSO, GWO, SSA |
-| 统计检验 | Wilcoxon 秩和检验（$\alpha = 0.05$），Friedman 排名 |
-
-> 运行代码：`cec2022/runsCEC2022_Main_Parallel.m`（并行版，可断点续跑）
-
-### 箱线图：适应度分布
-
-![CEC2022 箱线图](./cec2022/RunCEC2022/Run0529/boxplots.jpg)
-
-> 生成代码：`cec2022/Analyze_CEC2022.m`（第 69–127 行）。纵轴为对数坐标（代码第 100 行），避免算法性能悬殊时箱体被压扁。每种颜色对应一个算法，12 个子图对应 CEC2022 的 12 个测试函数。
-
-**关键结果：**
-
-| 函数 | 类型 | GL-FATA 表现 | 说明 |
-|------|------|:---:|------|
-| **F1** | 单峰 | ★★★★★ | 收敛到理论最优 $3.00 \times 10^2$，标准差 $2.69 \times 10^{-12}$，几乎零波动 |
-| **F2** | 单峰 | ★★★★☆ | 均值 $4.46 \times 10^2$，与最优算法差距 < 5% |
-| **F6** | 多峰 | ★★★★☆ | 均值 $4.89 \times 10^3$，仅略逊于 FATA（$4.40 \times 10^3$），远优于 GWO（$2.48 \times 10^5$）|
-| **F9** | 组合 | ★★★★★ | 均值 $2.48 \times 10^3$ 与最优持平，标准差仅 $1.35 \times 10^{-2}$ |
-| **F10** | 组合 | ★★★★★ | 均值 $2.50 \times 10^3$，标准差 $0.28$，显著优于 PSO（$3.02 \times 10^3$）|
-| **F12** | 组合 | ★★★★★ | 均值 $2.96 \times 10^3$，在所有对比算法中排名第一 |
-
-完整数据见 `cec2022/Result_Stats.xlsx`。
-
-### Friedman 检验：算法排名
-
-![Friedman 检验](./cec2022/RunCEC2022/Run0529/Friedman.jpg)
-
-> 生成代码：`cec2022/RunCEC2022/Run0529/Analyze_0529.m`（第 192–198 行）。排名基于 12 个函数上的平均表现，数值越低越好。
-
-
-
-### 收敛曲线
-
-![收敛曲线对比](./cec2022/RunCEC2022/Run0529/xxt1.jpg)
-
-GL-FATA 的 PWLCM 混沌初始化使算法从第一代起就具备更好的初始位置（见 `cec2022/View.m` 对比可视化），引导因子折射加速了中期收敛，Lévy 飞行在后期帮助跳出局部最优。
-
-### 计算耗时
-
-![运行时间对比](./cec2022/RunCEC2022/Run0529/runtime.jpg)
-
-> 生成代码：`cec2022/RunCEC2022/Run0529/Analyze_0529.m`（第 257–270 行）。
-
-GL-FATA 的运行时间与原始 FATA 基本持平，三处改进均为轻量级操作，未引入显著计算开销。
+运行器会在当前 `CEC2022` 目录读写 `CEC2022_Data.mat` 以及 `Result_*.xlsx`。这些文件包含随仓库提交的历史结果，正式复现前请在干净分支、单独工作副本或备份副本中运行，避免覆盖快照。
 
 ### 消融实验
 
-为验证每项改进的独立贡献，设计了 5 种变体进行对比（代码：`cec2022/Run_Ablation_Study.m`）：
-
-| 变体 | PWLCM 初始化 | 引导因子折射 | Lévy 飞行 | 消融目标 |
-|------|:-:|:-:|:-:|--------|
-| FATA_Original | ✗ | ✗ | ✗ | 基准 |
-| GL_FATA_NoPWLCM | ✗ | ✓ | ✓ | 验证混沌初始化 |
-| GL_FATA_NoGuide | ✓ | ✗ | ✓ | 验证引导因子 |
-| GL_FATA_NoLevy | ✓ | ✓ | ✗ | 验证 Lévy 飞行 |
-| **GL_FATA_Final** | **✓** | **✓** | **✓** | **完整版本** |
-
-完整消融数据见 `cec2022/Result_Summary_Table.csv`。
-
----
-
-## 📁 项目结构
-
+```matlab
+cd('CEC2022');
+Run_Ablation_Study
+Analyze_Ablation_Results
 ```
+
+消融脚本比较原始 FATA、去除 PWLCM、去除引导因子、去除 Lévy 飞行和完整 GL-FATA 五种变体；结果保存在 `Ablation_Experiment_Results.mat`。
+
+## 项目结构
+
+```text
 GL-FATA/
-├── GL_FATA.m              # 改进型 GL_FATA 算法（本仓库核心）
-├── FATA.m                 # 原始 FATA 算法实现
-├── README.md              # 本文件
-├── LICENSE                # MIT 许可协议
-│
-├── cec2022/               # CEC2022 实验评估
-│   ├── runsCEC2022_Main_Parallel.m   # 主实验（并行执行 + 断点续跑）
-│   ├── Analyze_CEC2022.m             # 分析生成箱线图
-│   ├── Export.m                      # 导出统计/原始/排名数据到 Excel
-│   ├── Run_Ablation_Study.m          # 消融实验
-│   ├── Result_Stats.xlsx             # 统计数据（Min/Std/Mean/Median/Worst）
-│   ├── Result_Friedman.xlsx          # Friedman 排名
-│   ├── Result_RankSum.xlsx           # Wilcoxon 秩和检验
-│   ├── Result_Summary_Table.csv      # 消融实验汇总
-│   ├── CEC2022_Boxplot.png           # 箱线图
-│   ├── THASO.m / GWO.m / PSO.m / SSA.m / DBO.m / ASFSSA.m  # 对比算法实现
-│   ├── Get_Functions_cec2022.m       # CEC2022 测试函数封装
-│   └── input_data22/                 # CEC2022 基准数据输入文件
-│
-└── cec2022/RunCEC2022/              # 多轮实验记录
-    ├── Run0529/                      # 0529 版本实验（8 算法对比）
-    │   ├── RUNCEC2022_0529.m         # 运行脚本
-    │   ├── Analyze_0529.m            # 分析 + 制图（箱线/Friedman/雷达/耗时）
-    │   ├── Friedman.jpg / leida.jpg / runtime.jpg / xxt1.jpg  # 结果图
-    │   └── CEC2022_Complete_Stats.xlsx  # 完整统计
-    ├── Run0208/ / Run0209/ / Run0125/ / Run0116/  # 历史实验记录
-    └── Run0529/0529abla/             # 消融分析结果图
+├── GL_FATA.m                    # 独立调用的 GL-FATA 主实现
+├── FATA.m                       # 可运行的原始 FATA 基线副本
+├── initialization.m             # 基线副本所需的初始化函数
+├── tests/
+│   └── smoke_test.m             # 无工具箱基础验证
+├── third_party/
+│   └── FATA/                    # 原论文作者维护的 FATA 子模块
+└── CEC2022/
+    ├── RUNCEC2022_0529.m        # 推荐的 CEC2022 对比实验入口
+    ├── Analyze_0529.m           # 统计、绘图与结果导出
+    ├── Run_Ablation_Study.m     # 消融实验
+    ├── GL_FATA.m                # 实验目录的同步实现
+    ├── cec22_func.cpp/.mexw64   # CEC2022 测试函数
+    ├── input_data22/            # CEC2022 基准数据
+    └── RunCEC2022/              # 历史实验快照与图表
 ```
 
----
+## 结果与可复现性说明
 
-## 📖 引用
+下图来自仓库中保留的 `Run0529` 历史实验快照，可用于论文展示和结果追溯。
 
-原始 FATA 算法：
+![CEC2022 boxplots](CEC2022/RunCEC2022/Run0529/boxplots.jpg)
+
+![Friedman ranking](CEC2022/RunCEC2022/Run0529/Friedman.jpg)
+
+- 历史图表与 Excel/MAT 文件是已有实验快照，不应替代在目标机器、目标 MATLAB 版本上的独立复跑。
+- 所有随机实验应显式设置 `rng`、记录 MATLAB/工具箱版本、CPU 与并行配置，并保留生成结果的脚本版本。
+- CEC2022 结果依赖已编译 MEX 文件、硬件、随机种子和工具箱实现；比较或引用新结果前应从原始 MAT 数据重新生成统计量与图表。
+
+## 上游更新
+
+子模块默认锁定到已验证的提交，以保证可复现。需要评估新上游版本时，可在单独分支执行：
+
+```bash
+git submodule update --remote third_party/FATA
+git diff --submodule=log
+```
+
+确认兼容性、许可证和实验影响后，再提交更新后的子模块指针。
+
+## 引用与许可证
+
+使用原始 FATA 或本项目基线比较时，请引用原论文：
 
 ```bibtex
 @article{qi2024fata,
-  title={FATA: An Efficient Optimization Method Based on Geophysics},
-  author={Qi, Ailiang and Zhao, Dong and Heidari, Ali Asghar and Liu, Lei and Chen, Yi and Chen, Huiling},
-  journal={Neurocomputing},
-  pages={128289},
-  year={2024},
-  publisher={Elsevier},
-  doi={10.1016/j.neucom.2024.128289}
+  title   = {FATA: An Efficient Optimization Method Based on Geophysics},
+  author  = {Qi, Ailiang and Zhao, Dong and Heidari, Ali Asghar and Liu, Lei and Chen, Yi and Chen, Huiling},
+  journal = {Neurocomputing},
+  volume  = {607},
+  pages   = {128289},
+  year    = {2024},
+  doi     = {10.1016/j.neucom.2024.128289}
 }
 ```
 
----
-
-## 🔗 相关算法
-
-原始 FATA 作者团队开发的其它元启发式算法：
-
-| 算法 | 年份 | 链接 |
-|------|:----:|------|
-| ECO（Ecosystem Optimizer） | 2024 | [🔗](http://www.aliasgharheidari.com/ECO.html) |
-| AO（Aquila Optimizer） | 2024 | [🔗](http://www.aliasgharheidari.com/AO.html) |
-| PO（Polar Lights Optimizer） | 2024 | [🔗](http://www.aliasgharheidari.com/PO.html) |
-| RIME（雾凇优化算法） | 2023 | [🔗](http://www.aliasgharheidari.com/RIME.html) |
-| INFO | 2022 | [🔗](http://www.aliasgharheidari.com/INFO.html) |
-| RUN | 2021 | [🔗](http://www.aliasgharheidari.com/RUN.html) |
-| HGS（Hunger Games Search） | 2021 | [🔗](http://www.aliasgharheidari.com/HGS.html) |
-| SMA（Slime Mould Algorithm） | 2020 | [🔗](http://www.aliasgharheidari.com/SMA.html) |
-| HHO（Harris Hawks Optimizer） | 2019 | [🔗](http://www.aliasgharheidari.com/HHO.html) |
-
----
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 — 详见 [LICENSE](LICENSE) 文件。
-
-原始 FATA 代码由原论文作者提供，仅供学术与研究使用。
+本项目采用 [MIT License](LICENSE)。`third_party/FATA` 是独立子模块，保留其上游 [MIT License](third_party/FATA/LICENSE) 与作者署名；请在再分发时同时遵守两者的许可证与引用要求。
